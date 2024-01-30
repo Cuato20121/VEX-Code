@@ -129,7 +129,7 @@ myVariable = 0
 Anothervariable = 0
 testfordistance1 = 0
 testfordistance2 = 0
-distanceofirregularities = []
+unordereddistanceofirregularities = []
 turnofirregularities = []
 turned = 0
 
@@ -174,8 +174,9 @@ def when_started1():
 
 
 def onauton_autonomous_0():
-    global myVariable, turned, distanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
+    global myVariable, turned, unordereddistanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
     V = 0
+    ordereddistanceofirregularities = []
     orderdistancelist = []
     # change velocity amounts to correct one when testing
     drivetrain.set_turn_velocity(1, PERCENT)
@@ -202,14 +203,18 @@ def onauton_autonomous_0():
     #loop to score
     drivetrain.set_turn_velocity(0, PERCENT)
     # enumerate though the distance and find the smallest one
-    for i in len(distanceofirregularities):
-        tempdict = distanceofirregularities[i]
-        orderdistancelist.append(tempdict['distance'])
-
+    for i in len(unordereddistanceofirregularities):
+        tempdict1 = unordereddistanceofirregularities[i]
+        orderdistancelist.append(tempdict1['distance'])
+    # do the compare
+    orderdistancelist.sort()
+    for num1 in len(orderdistancelist):
+        for num2 in len(unordereddistanceofirregularities):
+            tempdict2 = unordereddistanceofirregularities[num2]
+            if orderdistancelist[num1] == tempdict2['distance']:
+                ordereddistanceofirregularities.append(unordereddistanceofirregularities[num2])
+    #now do the moving of the robot
     
-
-
-
 
 
 # create a function for handling the starting and stopping of all autonomous tasks
