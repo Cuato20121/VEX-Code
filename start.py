@@ -176,11 +176,13 @@ def when_started1():
 def onauton_autonomous_0():
     global myVariable, turned, distanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
     V = 0
+    orderdistancelist = []
     # change velocity amounts to correct one when testing
     drivetrain.set_turn_velocity(1, PERCENT)
     turned = turned + 1
     distance1 = range_finder_a.distance(MM)
     while True:
+        turned = turned + 1
         distance1 = range_finder_a.distance(MM)
         #change wait time to perfection
         wait(0.5, SECONDS)
@@ -190,12 +192,8 @@ def onauton_autonomous_0():
         # also also need to make a thing for error correction to correct for the arena
         if distance1 - distance2 < 50:
             # main loop for recording positions of irregularities in path
-            #even numbers and 0 are turn and odd numbers are distance
-            turnofirregularities[V] = turned
-
-            distanceofirregularities[V] = distance2
-            V = V + 1
-            pass
+            #dictonary 'turn' and 'distance'
+            turnofirregularities.append({"turn": turned, "distance": distance2})
         if turned >= 180: #changeable
             break
 
@@ -205,7 +203,12 @@ def onauton_autonomous_0():
     drivetrain.set_turn_velocity(0, PERCENT)
     # enumerate though the distance and find the smallest one
     for i in len(distanceofirregularities):
-        if distanceofirregularities[i]
+        tempdict = distanceofirregularities[i]
+        orderdistancelist.append(tempdict['distance'])
+
+    
+
+
 
 
 
