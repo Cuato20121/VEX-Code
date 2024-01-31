@@ -129,7 +129,7 @@ myVariable = 0
 Anothervariable = 0
 testfordistance1 = 0
 testfordistance2 = 0
-unordereddistanceofirregularities = []
+ordereddistanceofirregularities = []
 turnofirregularities = []
 turned = 0
 
@@ -174,20 +174,20 @@ def when_started1():
 
 
 def onauton_autonomous_0():
-    global myVariable, turned, unordereddistanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
+    global myVariable, turned, ordereddistanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
     V = 0
-    ordereddistanceofirregularities = []
+    unordereddistanceofirregularities = []
     orderdistancelist = []
     # change velocity amounts to correct one when testing
     drivetrain.set_turn_velocity(1, PERCENT)
     turned = turned + 1
-    distance1 = range_finder_a.distance(MM)
+    distance1 = RangeFinderA.distance(MM)
     while True:
         turned = turned + 1
-        distance1 = range_finder_a.distance(MM)
+        distance1 = RangeFinderA.distance(MM)
         #change wait time to perfection
         wait(0.5, SECONDS)
-        distance2 = range_finder_a.distance(MM)
+        distance2 = RangeFinderA.distance(MM)
         # change the values of the inequalities when testing to perfection
         # also a gyroscope might make this easier to track positions
         # also also need to make a thing for error correction to correct for the arena
@@ -203,18 +203,18 @@ def onauton_autonomous_0():
     #loop to score
     drivetrain.set_turn_velocity(0, PERCENT)
     # enumerate though the distance and find the smallest one
-    for i in len(unordereddistanceofirregularities):
+    for i, _ in enumerate(unordereddistanceofirregularities):
         tempdict1 = unordereddistanceofirregularities[i]
         orderdistancelist.append(tempdict1['distance'])
     # do the compare
     orderdistancelist.sort()
-    for num1 in len(orderdistancelist):
-        for num2 in len(unordereddistanceofirregularities):
+    for num1, _ in enumerate(orderdistancelist):
+        for num2, _ in enumerate(unordereddistanceofirregularities):
             tempdict2 = unordereddistanceofirregularities[num2]
             if orderdistancelist[num1] == tempdict2['distance']:
                 ordereddistanceofirregularities.append(unordereddistanceofirregularities[num2])
     #now do the moving of the robot
-    
+
 
 
 # create a function for handling the starting and stopping of all autonomous tasks

@@ -1,7 +1,12 @@
-list = [5,6,8,3,7,9]
-otherlist = ["five","six","eight","three","seven","nine"]
+unordereddistanceofirregularities = []
+test = []
+for i in range(10):
+    unordereddistanceofirregularities.append({'turn': i, 'distance': i})
 
-sortedlist = sorted(list)
-sortedotherlist = sorted(otherlist)
-print(sortedlist)
-print(otherlist)
+
+for i, a in enumerate(unordereddistanceofirregularities):
+    tempdict1 = unordereddistanceofirregularities[i]
+    test.append(tempdict1['distance'])
+
+for i in test:
+    print(i)
