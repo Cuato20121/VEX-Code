@@ -175,7 +175,6 @@ def when_started1():
 
 def onauton_autonomous_0():
     global myVariable, turned, ordereddistanceofirregularities, turnofirregularities, Anothervariable, testfordistance1, testfordistance2, vexcode_brain_precision, vexcode_console_precision, vexcode_controller_1_precision
-    V = 0
     unordereddistanceofirregularities = []
     orderdistancelist = []
     # change velocity amounts to correct one when testing
@@ -214,6 +213,12 @@ def onauton_autonomous_0():
             if orderdistancelist[num1] == tempdict2['distance']:
                 ordereddistanceofirregularities.append(unordereddistanceofirregularities[num2])
     #now do the moving of the robot
+    for i in enumerate(ordereddistanceofirregularities)
+    turnamout = ordereddistanceofirregularities[0]
+    while turned != turnamout['turn']:
+        drivetrain.set_turn_velocity(-1, PERCENT)
+        turned = turned - 1
+
 
 
 
@@ -222,7 +227,7 @@ def vexcode_auton_function():
     # Start the autonomous control tasks
     auton_task_0 = Thread(onauton_autonomous_0)
     # wait for the driver control period to end
-    while (competition.is_autonomous() and competition.is_enabled()):
+    while competition.is_autonomous() and competition.is_enabled():
         # wait 10 milliseconds before checking again
         wait(10, MSEC)
     # Stop the autonomous control tasks
@@ -234,7 +239,7 @@ def vexcode_driver_function():
     driver_control_task_0 = Thread(ondriver_drivercontrol_0)
 
     # wait for the driver control period to end
-    while (competition.is_driver_control() and competition.is_enabled()):
+    while competition.is_driver_control() and competition.is_enabled():
         # wait 10 milliseconds before checking again
         wait(10, MSEC)
     # Stop the driver control tasks
