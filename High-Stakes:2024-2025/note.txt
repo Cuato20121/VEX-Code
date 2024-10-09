@@ -1,1 +1,22 @@
-The game is not out yet
+The game consists of a multitude of objectives.
+
+	The scoring of rings onto sticks gain points
+	The movable score sticks can be put into the negative and positive to increase and decrease the amount of points the rings on those posts provide to the team
+	Climbing the ladder in the middle can add points to your final score
+	The autonomous win point consists of 
+
+An Autonomous Win Point is awarded to any Alliance that ends the Autonomous Period with
+the following tasks completed, and that has not broken any rules during the Autonomous Period:
+
+1. At least three (3) Scored Rings of the Alliance’s color
+
+2. A minimum of two (2) Stakes on the Alliance’s side of the Autonomous Line with at least (1)
+Ring of the Alliance’s color Scored
+
+3. Neither Robot contacting / breaking the plane of the Starting Line
+
+4. At least one (1) Robot contacting the Ladder
+
+
+The code itself will be in whatever format necessary and the Main.__ file is what will be used for robots.
+
