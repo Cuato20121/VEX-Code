@@ -28,7 +28,10 @@ vex::brain       Brain;
 // define your global instances of motors and other devices here
 
 // define motors
-
+motor LeftDrive = motor(PORT4, ratio18_1, false); // the bools at the end of the statment can be changed
+motor RightDrive = motor(PORT3, ratio18_1, true);
+//Left motor, Right motor, wheel circumfrance (4 in wheels), track width (Right-Left), wheel base(Up-Down), unit, ext. gear ratio
+drivetrain Drivetrain = drivetrain(LeftDrive, RightDrive, 319.18, 300, 300, mm, 1);
 
 // definition of the 3 encoders: R-Right L-left B-Back
 
@@ -73,7 +76,7 @@ class odometry {
       pos.degrees = round(theta  * (180/M_PI)); // converts radions to degrees and rounds
       pos.degrees = pos.degrees % 360; // filtering multiple and left rotations ex: in:-478 out:118
 
-      if (theta == 0){ // prevents the program from attempting to divde
+      if (theta == 0){ // prevents the program from attempting to divde by 0
         pos.x = 0;
         pos.y = distanceR;
       } else {
@@ -90,12 +93,10 @@ class odometry {
       // closer to the point the more dramatic the difference
       //int distance;
       int degrees;
-      std::array<Position,4> points;
       
       
-
-
       /* This will be done if more accuracy is needed
+      std::array<Position,4> points;
       // find 3 points in between origin and end then add the end as a point
       // mid point from origin to end
       points[1].x = (globalPositon[0] + x) / 2;
@@ -114,6 +115,11 @@ class odometry {
       rotate(findDegreesToPoint(x,y));
 
       //accelerate
+      RightDrive.setVelocity(70,percent);
+      RightDrive.spin(forward);
+      LeftDrive.setVelocity(70,percent);
+      LeftDrive.spin(forward);     
+
 
       while (true)
       {
@@ -123,16 +129,20 @@ class odometry {
         // distance = round(sqrt(pow((x - globalPositon[0]),2)+pow((y - globalPositon[1]),2)));
 
         // adjustment loop
-        if (degrees != globalPositon[2])
+        if (degrees + toleranceRotation < globalPositon[2] || degrees - toleranceRotation > globalPositon[2]) // if needed implement distance logic here
         {
           if (rightOrLeft(degrees))
           {
             // if needed implement distance logic here
             // increase rate of speed on left side and decrease on right
+            RightDrive.setVelocity(67,percent);
+            LeftDrive.setVelocity(73,percent);
           } else
           {
             // if needed implement distance logic here
             // incrase rate of speed on right side and decrease on left
+            RightDrive.setVelocity(73,percent);
+            LeftDrive.setVelocity(67,percent);
           }
           
         }
@@ -141,6 +151,8 @@ class odometry {
         if (globalPositon[0] > x - toleranceXY && globalPositon[0] < x + toleranceXY && globalPositon[1] > y - toleranceXY && globalPositon[1] < y + toleranceXY)
         {
           // stop movment
+          LeftDrive.stop();
+          RightDrive.stop();
           break;
         }
         
@@ -158,7 +170,8 @@ class odometry {
       {
         if (rightOrLeft(degrees, case180) == true)
         {
-          // continuously turn right
+          RightDrive.spin(reverse);
+          LeftDrive.spin(forward);
         } else 
         {
           // continuously turn left
@@ -282,6 +295,8 @@ void odometry::updateGlobalStatic(){ // trampoline function
 
 
 
+
+
 int main() {
 
     // sets odometry things
@@ -301,6 +316,9 @@ int main() {
 
     Brain.Screen.printAt( 10, 50, "Hello V5" );
    
+    RightDrive.setVelocity(70,percent);
+    LeftDrive.setVelocity(70, percent);
+
     while(1) {
         
         // Allow other tasks to run
