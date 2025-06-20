@@ -23,8 +23,8 @@ struct Position {
 
 
 // A global instance of vex::brain used for printing to the V5 brain screen
-vex::brain       Brain;
-
+//vex::brain       Brain;
+brain Brain;
 // define your global instances of motors and other devices here
 
 // define motors
@@ -276,11 +276,28 @@ class odometry {
       globalPositon[0] += pos.x;
       globalPositon[1] += pos.y;
       
-
+      /*
       EncoderR.resetRotation();
       EncoderB.resetRotation();
       EncoderL.resetRotation();
+      Brain.Screen.clearLine(1);
+      Brain.Screen.clearLine(2);
+      Brain.Screen.clearLine(3);
+      Brain.Screen.setCursor(1,1);
+      Brain.Screen.print("x: %d",globalPositon[0]);
+      Brain.Screen.newLine();
+      Brain.Screen.print("y:%d", globalPositon[1]);
+      Brain.Screen.newLine();
+      Brain.Screen.print("Degree:%d",globalPositon[2]);
+      wait(20,msec);
+      */
+      Brain.Screen.setCursor(1,1);
+      Brain.Screen.print(EncoderB.rotation(degrees));
+      
     }
+
+    
+    
 };
 
 odometry* odometry::instance = nullptr;
@@ -294,15 +311,12 @@ void odometry::updateGlobalStatic(){ // trampoline function
 
 
 
-
-
-
 int main() {
 
     // sets odometry things
     static odometry odMain; // make it exist outside of pre auton
     odometry::instance = &odMain; // assign the instance
-
+    
     odMain.trakingPoint = {10,10,10}; // set this value to the distance of the encoders to the tracking point R,L,B
     odMain.circumference = 10; // set this value to the circumfrance of the encoder wheeles
     odMain.toleranceXY = 1; // n mm of tolerance
@@ -314,13 +328,14 @@ int main() {
     EncoderB.resetRotation();
     EncoderL.resetRotation();
 
-    Brain.Screen.printAt( 10, 50, "Hello V5" );
+    //Brain.Screen.printAt( 10, 50, "Hello V5" );
    
     RightDrive.setVelocity(70,percent);
     LeftDrive.setVelocity(70, percent);
 
     while(1) {
-        
+
+        odMain.updateGlobal();
         // Allow other tasks to run
         this_thread::sleep_for(10);
     }
