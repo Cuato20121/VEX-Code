@@ -15,8 +15,7 @@
 using namespace vex;
 
 
-// Brain should be defined by default
-brain Brain;
+
 
 
 
@@ -35,18 +34,18 @@ brain Brain;
 
 
 
-// Robot configuration code.
+/*----------------------------------------------------devices config---------------------------------------------------- */
+
+
+brain Brain;
+
+controller Controller1 = controller(primary);
+
 // arm Motors
 motor MotorArmLeft = motor(PORT4, ratio36_1, true);
 motor MotorArmRight = motor(PORT5, ratio36_1, false);
 
-
 motor_group ArmMotorGroup = motor_group(MotorArmLeft, MotorArmRight);
-
-
-
-
-
 
 // Drive Motors
 motor DriveFR = motor(PORT2, ratio18_1, true);
@@ -54,19 +53,16 @@ motor DriveBR = motor(PORT10, ratio18_1, true);
 motor DriveFL = motor(PORT1, ratio18_1, false);
 motor DriveBL = motor(PORT8, ratio18_1, false);
 
-
 motor_group DriveRight = motor_group(DriveFR, DriveBR);
 motor_group DriveLeft = motor_group(DriveFL, DriveBL);
 
-
-controller Controller1 = controller(primary);
-
-
 // Rotation sensors
 rotation RotationRight = rotation(PORT11, false);
-
-
 rotation RotationLeft = rotation(PORT20, false);
+
+// Pneumatics
+pneumatics ClawPistonLeft = pneumatics(Brain.ThreeWirePort.A);
+pneumatics ClawPistonRight = pneumatics(Brain.ThreeWirePort.B);
 
 
 // generating and setting random seed
@@ -123,21 +119,23 @@ void motorinit(){
 
   DriveRight.setVelocity(0,percent);
   DriveLeft.setVelocity(0,percent);
-
-
-
-
 }
 
 
 /*----------------------------------------------------controller input---------------------------------------------------- */
+
+
 // define variable for remote controller enable/disable
 bool RemoteControlCodeEnabled = true;
+
 // define variables used for controlling motors based on controller inputs
 bool Controller1XBButtonsControlMotorsStopped = true;
-
-
 bool Controller1DriveAxisMotorsStopped = true;
+
+// claw togel
+bool ClawOn = false;
+bool BeenPresed = false;
+bool ButtonAState;
 
 
 // dead zone value
@@ -199,8 +197,34 @@ int rc_auto_loop_function_Controller1() {
 
 
     }
+    // claw togle logic
+    ButtonAState = Controller1.ButtonA.pressing();
+
+    if (ButtonAState == true && BeenPresed == false)
+    {
+        ClawOn = true;
+        BeenPresed = true;
+        
+    } else if (ButtonAState == false && BeenPresed == true)
+    {
+        ClawOn = false;
+        BeenPresed = false;
+    }
+    
+    if (ClawOn == true) // open and closed are subject to change depending on valve config
+    {
+        ClawPistonLeft.open();
+        ClawPistonRight.open();
+    } else 
+    {
+        ClawPistonLeft.close();
+        ClawPistonRight.close();   
+    }
+    
+    
+
+
     // wait before repeating the process
-   
     wait(20, msec);
   }
   return 0;
@@ -211,6 +235,8 @@ task rc_auto_loop_task_Controller1(rc_auto_loop_function_Controller1);
 
 
 /*----------------------------------------------------Odometry code---------------------------------------------------- */
+
+
 // global variables for odometry cordinates
 float Wheelx = 0; // in
 float Wheely = 0;
@@ -282,13 +308,6 @@ int OdometryUpdateCycle() {
 using namespace vex;
 
 
-float myVariable;
-
-
-
-
-
-
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
@@ -301,7 +320,7 @@ int main() {
 
   Controller1.Screen.print("x: {:.2f} y: {:.2f} 0: {:.2f}", Wheelx, Wheely, WheelTheta);
 
-
+  
 
 
 
