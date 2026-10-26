@@ -42,14 +42,14 @@ brain Brain;
 controller Controller1 = controller(primary);
 
 // arm Motors
-motor MotorArmLeft = motor(PORT4, ratio36_1, true);
-motor MotorArmRight = motor(PORT5, ratio36_1, false);
+motor MotorArmLeft = motor(PORT2, ratio36_1, true);
+motor MotorArmRight = motor(PORT10, ratio36_1, false);
 
 motor_group ArmMotorGroup = motor_group(MotorArmLeft, MotorArmRight);
 
 // Drive Motors
-motor DriveFR = motor(PORT2, ratio18_1, true);
-motor DriveBR = motor(PORT10, ratio18_1, true);
+motor DriveFR = motor(PORT18, ratio18_1, true);
+motor DriveBR = motor(PORT19, ratio18_1, true);
 motor DriveFL = motor(PORT1, ratio18_1, false);
 motor DriveBL = motor(PORT8, ratio18_1, false);
 
@@ -80,25 +80,10 @@ void initializeRandomSeed(){
   srand(seed);
 }
 
-
-
-
-
-
 void vexcodeInit() {
-
-
   //Initializing random seed.
   initializeRandomSeed();
-
-
-
-
- 
 }
-
-
-
 
 // Helper to make playing sounds from the V5 in VEXcode easier and
 // keeps the code cleaner by making it clear what is happening.
@@ -106,11 +91,6 @@ void playVexcodeSound(const char *soundName) {
   printf("VEXPlaySound:%s\n", soundName);
   wait(5, msec);
 }
-
-
-
-
-
 
 void motorinit(){
   MotorArmLeft.setStopping(hold);
@@ -141,10 +121,8 @@ bool ButtonAState;
 // dead zone value
 int dz = 10;
 
-
 int LeftStickVertPos;
 int LeftStickHorzPos;
-
 
 // define a task that will handle monitoring inputs from Controller1
 int rc_auto_loop_function_Controller1() {
@@ -213,16 +191,13 @@ int rc_auto_loop_function_Controller1() {
     
     if (ClawOn == true) // open and closed are subject to change depending on valve config
     {
-        ClawPistonLeft.open();
-        ClawPistonRight.open();
+        ClawPistonLeft.close();
+        ClawPistonRight.close();
     } else 
     {
-        ClawPistonLeft.close();
-        ClawPistonRight.close();   
+        ClawPistonLeft.open();
+        ClawPistonRight.open();   
     }
-    
-    
-
 
     // wait before repeating the process
     wait(20, msec);
@@ -294,7 +269,13 @@ int OdometryUpdateCycle() {
 }
 
 
-
+void PrintDataToController(){
+  while (true)
+  {
+    Controller1.Screen.print("x: {:.2f} y: {:.2f} 0: {:.2f}", Wheelx, Wheely, WheelTheta);
+    wait(100, msec);
+  }
+}
 
 
 
@@ -313,21 +294,10 @@ int main() {
   vexcodeInit();
   motorinit();
   thread odometryThread = thread(OdometryUpdateCycle);
+  thread screenupdate = thread(PrintDataToController);
  // whenStarted1();
  while (true){
-  Controller1.Screen.clearScreen();
-
-
-  Controller1.Screen.print("x: {:.2f} y: {:.2f} 0: {:.2f}", Wheelx, Wheely, WheelTheta);
-
-  
-
-
-
-
   wait(100, msec);
-
-
  }
 }
 
