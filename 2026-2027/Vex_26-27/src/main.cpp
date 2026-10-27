@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <string.h>
+#include <string>
 
 
 
@@ -96,38 +96,41 @@ void motorinit(){
   MotorArmLeft.setStopping(hold);
   MotorArmRight.setStopping(hold);
 
-
   DriveRight.setVelocity(0,percent);
+  DriveRight.spin(forward);
   DriveLeft.setVelocity(0,percent);
+  DriveLeft.spin(forward);
+
 }
 
 
 /*----------------------------------------------------controller input---------------------------------------------------- */
-
-
-// define variable for remote controller enable/disable
-bool RemoteControlCodeEnabled = true;
-
-// define variables used for controlling motors based on controller inputs
-bool Controller1XBButtonsControlMotorsStopped = true;
-bool Controller1DriveAxisMotorsStopped = true;
-
-// claw togel
-bool ClawOn = false;
-bool BeenPresed = false;
-bool ButtonAState;
-
-
-// dead zone value
-int dz = 10;
-
-int LeftStickVertPos;
-int LeftStickHorzPos;
+// if debouncing is necessary all of the controlls could be split into different threads
 
 // define a task that will handle monitoring inputs from Controller1
 int rc_auto_loop_function_Controller1() {
   // process the controller input every 20 milliseconds
   // update the motors based on the input values
+
+  // define variable for remote controller enable/disable
+  bool RemoteControlCodeEnabled = true;
+
+  // define variables used for controlling motors based on controller inputs
+  bool Controller1XBButtonsControlMotorsStopped = true;
+  bool Controller1DriveAxisMotorsStopped = true;
+
+  // claw togel
+  bool ClawOn = false;
+  bool BeenPresed = false;
+  bool ButtonAState;
+
+
+  // dead zone value
+  int dz = 10;
+
+  int LeftStickVertPos;
+  int LeftStickHorzPos;
+
   while(true) {
     if(RemoteControlCodeEnabled) {
       // check the ButtonX/ButtonB status to control ArmMotorGroup
@@ -155,20 +158,15 @@ int rc_auto_loop_function_Controller1() {
         if (Controller1DriveAxisMotorsStopped == true) // turns motors on
         {
           Controller1DriveAxisMotorsStopped = false;
-          DriveRight.spin(forward);
-          DriveLeft.spin(forward);
         }
-
 
         DriveRight.setVelocity(LeftStickVertPos - LeftStickHorzPos, percent);
         DriveLeft.setVelocity(LeftStickVertPos + LeftStickHorzPos, percent);
-
-
-       
+    
       } else{
         if (!Controller1DriveAxisMotorsStopped){ // turns motors off to save instructions
-            DriveRight.stop();
-            DriveLeft.stop();
+            DriveRight.setVelocity(0, percent);
+            DriveLeft.setVelocity(0, percent);
         }
         Controller1DriveAxisMotorsStopped = true;
       }
@@ -180,12 +178,18 @@ int rc_auto_loop_function_Controller1() {
 
     if (ButtonAState == true && BeenPresed == false)
     {
+      if (ClawOn == false)
+      {
         ClawOn = true;
+      } else
+      {
+        ClawOn = false;
+      }
+
         BeenPresed = true;
         
     } else if (ButtonAState == false && BeenPresed == true)
     {
-        ClawOn = false;
         BeenPresed = false;
     }
     
@@ -217,16 +221,14 @@ float Wheelx = 0; // in
 float Wheely = 0;
 float WheelTheta = 0; // rad from -pi(left) to pi(right)
 
-
-double WheelWidth = 2.75; // in (distance between the two wheels)
-double WheelSize = 2.75;
-
-
 int OdometryUpdateCycle() {
+
+  double WheelWidth = 2.75; // in (distance between the two wheels)
+  double WheelSize = 2.75;
+
   double PreviousRightEnc = 0.0;
   double PreviousLeftEnc = 0.0;
-  double DegreeMultFactor = (M_PI * 2.75) / 360; // factor for degrees to distance
-
+  double DegreeMultFactor = (M_PI * WheelSize) / 360; // factor for degrees to distance
 
   while (true){
     double DeltaRight = (RotationRight.position(degrees) - PreviousRightEnc) * DegreeMultFactor; // distance traveled by wheels
@@ -267,6 +269,72 @@ int OdometryUpdateCycle() {
   }
   return 0;
 }
+
+/*----------------------------------------------------autonomus code---------------------------------------------------- */
+// assume all of these functions are running without remote controll
+
+int AutonSpeed = 50;
+
+int ShortestDistance360(int target, int current){ // sets the difference to [-180, 180] range
+  current = ((current % 360) + 360) % 360; // puts in [0, 360] range
+  target = ((current % 360) + 360) % 360;
+
+  int error = target - current;
+  return ((error + 180) % 360) - 180;
+}
+
+void StopDrive(){
+  DriveRight.setVelocity(0, percent);
+  DriveLeft.setVelocity(0, percent);
+}
+
+int Turn(const std::string& Direction, int speed){ // Direction is either "Right" or "Left", speed is the percentage (1-100) of motor power
+  if (Direction == "Right")
+  {
+    DriveRight.setVelocity(-speed, percent);
+    DriveLeft.setVelocity(speed, percent);
+
+    return 0;
+  } else if (Direction == "Left")
+  {
+    DriveRight.setVelocity(speed, percent);
+    DriveLeft.setVelocity(-speed, percent);
+
+    return 0;
+  } else
+  {
+    return 1;
+  }
+}
+// ***to do** implement a pid controlled current x,y to target x,y
+
+
+void TurnToHeading(int degree, int speed){ // the degree is based on the starting position, the speed is the percentage of the wheel motors
+
+  int deadzone = 5;
+
+  int ShortestDistance = ShortestDistance360(degree, WheelTheta);
+
+  if (ShortestDistance < 0)
+  {
+    Turn("Left", speed);
+  } else if (ShortestDistance > 0)
+  {
+    Turn("Right", speed);
+  }
+  
+  while (true)
+  { 
+    ShortestDistance = ShortestDistance360(degree, WheelTheta);
+    if (ShortestDistance < deadzone && ShortestDistance > -deadzone)
+    {
+      StopDrive();
+      return;
+    }
+  }
+  
+}
+
 
 
 void PrintDataToController(){
