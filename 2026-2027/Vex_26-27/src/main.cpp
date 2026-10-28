@@ -57,8 +57,8 @@ motor_group DriveRight = motor_group(DriveFR, DriveBR);
 motor_group DriveLeft = motor_group(DriveFL, DriveBL);
 
 // Rotation sensors
-rotation RotationRight = rotation(PORT11, false);
-rotation RotationLeft = rotation(PORT20, false);
+rotation RotationRight = rotation(PORT9, false);
+rotation RotationLeft = rotation(PORT4, false);
 
 // Pneumatics
 pneumatics ClawPistonLeft = pneumatics(Brain.ThreeWirePort.A);
@@ -173,7 +173,7 @@ int rc_auto_loop_function_Controller1() {
 
 
     }
-    // claw togle logic
+    // claw togle logic ps. got 30 cycles on 100 psi
     ButtonAState = Controller1.ButtonA.pressing();
 
     if (ButtonAState == true && BeenPresed == false)
@@ -213,7 +213,7 @@ int rc_auto_loop_function_Controller1() {
 task rc_auto_loop_task_Controller1(rc_auto_loop_function_Controller1);
 
 
-/*----------------------------------------------------Odometry code---------------------------------------------------- */
+/*----------------------------------------------------Odometry code (not working at all) ---------------------------------------------------- */
 
 
 // global variables for odometry cordinates
@@ -360,10 +360,17 @@ void TurnToHeading(int degree, int speed){ // the degree is based on the startin
 
 
 void PrintDataToController(){
+  //std::string string = "";
+  Controller1.Screen.clearScreen();
   while (true)
   {
-    Controller1.Screen.print("x: {:.2f} y: {:.2f} 0: {:.2f}", Wheelx, Wheely, WheelTheta);
+    //string += "x: " 
+    Controller1.Screen.setCursor(0,0);
+    Controller1.Screen.print("x: %f y: %f ", Wheelx, Wheely);
+    Controller1.Screen.setCursor(2,0);
+    Controller1.Screen.print("Theta: %f", WheelTheta);
     wait(100, msec);
+    Controller1.Screen.clearScreen();
   }
 }
 
