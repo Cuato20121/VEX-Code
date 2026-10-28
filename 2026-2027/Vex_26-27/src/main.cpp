@@ -275,7 +275,7 @@ int OdometryUpdateCycle() {
 
 int AutonSpeed = 50;
 
-int ShortestDistance360(int target, int current){ // sets the difference to [-180, 180] range
+int CalcError180(int target, int current){ // returns the difference between target and current angle in [0,360]-input range; [-180, 180]-output range
   current = ((current % 360) + 360) % 360; // puts in [0, 360] range
   target = ((current % 360) + 360) % 360;
 
@@ -307,13 +307,35 @@ int Turn(const std::string& Direction, int speed){ // Direction is either "Right
   }
 }
 // ***to do** implement a pid controlled current x,y to target x,y
+void ToPointPID(int x, int y){ // x, y
+  double kp; // PID gains
+  double ki;
+  double kd;
+  
+  double dt; // change in time from last loop
+
+  double PreviousTime = Brain.Timer.time(); // inits so time starts from function start
+  double Error;
+  double NeededTheta;
+
+  while (true)
+  {
+    dt = PreviousTime - Brain.Timer.time();
+    PreviousTime = Brain.Timer.time();
+    Error = CalcError180(NeededTheta, WheelTheta);
+    
 
 
+  }
+  
+
+
+} 
 void TurnToHeading(int degree, int speed){ // the degree is based on the starting position, the speed is the percentage of the wheel motors
 
   int deadzone = 5;
 
-  int ShortestDistance = ShortestDistance360(degree, WheelTheta);
+  int ShortestDistance = CalcError180(degree, WheelTheta);
 
   if (ShortestDistance < 0)
   {
@@ -325,7 +347,7 @@ void TurnToHeading(int degree, int speed){ // the degree is based on the startin
   
   while (true)
   { 
-    ShortestDistance = ShortestDistance360(degree, WheelTheta);
+    ShortestDistance = CalcError180(degree, WheelTheta);
     if (ShortestDistance < deadzone && ShortestDistance > -deadzone)
     {
       StopDrive();
